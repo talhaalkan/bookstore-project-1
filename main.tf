@@ -39,3 +39,37 @@ resource "aws_instance" "bookstore-server" {
               docker-compose up -d
               EOF
 }
+
+resource "aws_security_group" "sec-gr" {
+  name = "bookstore-sec-group"
+  tags = {
+    Name = "bookstore project security group"
+  }
+  ingress {
+    from_port   = 80
+    protocol    = "tcp"
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    protocol    = "tcp"
+    to_port     = 22
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    protocol    = -1
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+output "docker-compose-bookstore-public-ip" {
+  value = aws_instance.bookstore-server.public_ip
+}
+
+output "bookstore-website" {
+  value = "http://${aws_instance.bookstore-server.public_dns}"
